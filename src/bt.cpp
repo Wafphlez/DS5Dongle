@@ -77,11 +77,14 @@ bool bt_disconnect() {
 }
 
 void bt_get_signal_strength(int8_t *rssi) {
-    if (acl_handle != HCI_CON_HANDLE_INVALID) {
-        gap_read_rssi(acl_handle);
-    }
+    // gap_read_rssi() completes asynchronously, so this function can only
+    // return the last cached RSSI value. Trigger a refresh afterwards so a
+    // subsequent call can observe the updated value once the RSSI event arrives.
     if (rssi != nullptr) {
         *rssi = bt_rssi;
+    }
+    if (acl_handle != HCI_CON_HANDLE_INVALID) {
+        gap_read_rssi(acl_handle);
     }
 }
 
